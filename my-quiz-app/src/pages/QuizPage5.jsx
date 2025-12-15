@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, CheckCircle, XCircle, AlertCircle, RefreshCw, Award, ChevronRight, ChevronLeft } from 'lucide-react';
-import QuizTemplate from './QuizTemplate'; // 위에서 만든 파일 경로
+import QuizTemplate from './QuizTemplate';
 
 const quizData = [
   {

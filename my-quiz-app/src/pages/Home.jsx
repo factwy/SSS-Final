@@ -86,6 +86,13 @@ export default function Home() {
           path="/quiz/6"
           color="bg-orange-600"
         />
+
+        <QuizCard 
+          title="Total Quiz 2"
+          icon={Cpu}
+          path="/quiz/7"
+          color="bg-orange-600"
+        />
       </div>
     </div>
   );
