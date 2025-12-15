@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { Home as HomeIcon, BookOpen } from 'lucide-react';
 
-function App() {
-  const [count, setCount] = useState(0)
+// 페이지 컴포넌트 임포트
+import Home from './pages/Home';
+import QuizPage1 from './pages/QuizPage1';
+import QuizPage2 from './pages/QuizPage2'; // 파일이 있다고 가정
+import QuizPage3 from './pages/QuizPage3'; // 파일이 있다고 가정
+import QuizPage4 from './pages/QuizPage4'; // 파일이 있다고 가정
+import QuizPage5 from './pages/QuizPage5';
 
+// 공통 레이아웃 (상단 네비게이션 바)
+const Layout = ({ children }) => (
+  <div className="min-h-screen bg-gray-50 font-sans">
+    <nav className="bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center gap-2 text-blue-600 font-bold text-xl hover:text-blue-700">
+              <BookOpen size={24} />
+              <span>CS Quiz Master</span>
+            </Link>
+          </div>
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center gap-2 text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              <HomeIcon size={18} />
+              메인으로
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main>
+      {children}
+    </main>
+  </div>
+);
+
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/quiz/1" element={<QuizPage1 />} />
+          <Route path="/quiz/2" element={<QuizPage2 />} />
+          <Route path="/quiz/3" element={<QuizPage3 />} />
+          <Route path="/quiz/4" element={<QuizPage4 />} />
+          <Route path="/quiz/5" element={<QuizPage5 />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
+  );
 }
-
-export default App
