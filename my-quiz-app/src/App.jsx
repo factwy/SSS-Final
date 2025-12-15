@@ -10,6 +10,7 @@ import QuizPage2 from './pages/QuizPage2'; // 파일이 있다고 가정
 import QuizPage3 from './pages/QuizPage3'; // 파일이 있다고 가정
 import QuizPage4 from './pages/QuizPage4'; // 파일이 있다고 가정
 import QuizPage5 from './pages/QuizPage5';
+import QuizPage6 from './pages/QuizPage6';
 
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/quiz/3" element={<QuizPage3 />} />
           <Route path="/quiz/4" element={<QuizPage4 />} />
           <Route path="/quiz/5" element={<QuizPage5 />} />
+          <Route path="/quiz/6" element={<QuizPage6 />} />
         </Routes>
       </Layout>
     </BrowserRouter>
