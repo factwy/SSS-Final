@@ -42,7 +42,7 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
   }
 
   return (
-    // [수정됨] 다크모드 방지: text-gray-900 및 bg-gray-100을 강제 적용하여 부모 테마 무시
+    // 다크모드 방지: 최상위 컨테이너에 밝은 테마 강제 적용
     <div className="min-h-screen bg-gray-100 p-4 font-sans text-gray-900 antialiased">
       <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden min-h-[600px] flex flex-col border border-gray-200">
         
@@ -66,7 +66,6 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
         </header>
 
         {/* Content Body */}
-        {/* [수정됨] bg-white 강제 적용 */}
         <main className="flex-1 p-6 overflow-y-auto bg-white">
           {mode === 'landing' && (
             <div className="flex flex-col items-center justify-center h-full gap-8 py-10">
@@ -109,39 +108,46 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-xl font-bold leading-relaxed text-gray-900">{quizData[currentQuestionIdx].question}</h3>
+                <h3 className="text-xl font-bold leading-relaxed text-black">{quizData[currentQuestionIdx].question}</h3>
                 
                 <div className="space-y-3">
                   {quizData[currentQuestionIdx].options.map((option, idx) => {
                     const isSelected = userAnswers[quizData[currentQuestionIdx].id] === idx;
                     const isCorrect = quizData[currentQuestionIdx].answer === idx;
                     
-                    let btnClass = "w-full text-left p-4 rounded-lg border-2 transition relative ";
+                    let btnClass = "w-full text-left p-4 rounded-lg border-2 transition relative font-medium ";
+                    
                     if (showExplanation) {
-                       if (isCorrect) btnClass += "border-green-500 bg-green-50 text-green-800";
-                       else if (isSelected && !isCorrect) btnClass += "border-red-500 bg-red-50 text-red-800";
-                       else btnClass += "border-gray-200 bg-white text-gray-400"; // 오답 처리 후 나머지 보기
+                       // 해설 표시 모드
+                       if (isCorrect) btnClass += "border-green-500 bg-green-50 text-green-900"; // 정답: 초록 배경 + 진한 초록 글씨
+                       else if (isSelected && !isCorrect) btnClass += "border-red-500 bg-red-50 text-red-900"; // 오답: 빨강 배경 + 진한 빨강 글씨
+                       else btnClass += "border-gray-200 bg-white text-gray-400"; // 나머지: 흐리게
                     } else {
-                       if (isSelected) btnClass += "border-blue-500 bg-blue-50 text-blue-800";
-                       else btnClass += "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-gray-50";
+                       // 기본 문제 풀이 모드
+                       if (isSelected) {
+                         // 선택된 상태
+                         btnClass += "border-blue-500 bg-blue-50 text-blue-900"; 
+                       } else {
+                         // [수정됨] 기본 상태: 밝은 회색 배경(bg-gray-50) + 검은색 글씨(text-black)
+                         btnClass += "border-gray-200 bg-gray-50 text-black hover:bg-gray-100 hover:border-gray-300";
+                       }
                     }
 
                     return (
                       <button 
                         key={idx}
                         onClick={() => {
-                            // [수정됨] 연습모드 로직 변경: 선택 시 즉시 해설 보기 활성화
+                            // 연습모드: 선택 시 즉시 해설 보기 활성화
                             if (!showExplanation) {
                                 handleAnswerSelect(quizData[currentQuestionIdx].id, idx);
-                                setShowExplanation(true); // 즉시 정답 확인
+                                setShowExplanation(true);
                             }
                         }}
-                        disabled={showExplanation} // 해설이 보이면 버튼 비활성화 (답 변경 불가)
+                        disabled={showExplanation}
                         className={btnClass}
                       >
                         {option}
                         {showExplanation && isCorrect && <CheckCircle className="absolute right-4 top-4 text-green-600" size={20} />}
-                        {/* 틀린 답을 골랐을 때 X 아이콘 표시 추가 */}
                         {showExplanation && isSelected && !isCorrect && <XCircle className="absolute right-4 top-4 text-red-500" size={20} />}
                       </button>
                     );
@@ -211,7 +217,7 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
 
                   {quizData.map((q, index) => (
                     <div key={q.id} className="border-b border-gray-100 pb-6 last:border-0">
-                      <h3 className="font-medium text-lg mb-4 flex gap-2 text-gray-900">
+                      <h3 className="font-medium text-lg mb-4 flex gap-2 text-black">
                         <span className="text-gray-400 font-bold w-8 shrink-0">{index + 1}.</span>
                         {q.question}
                       </h3>
@@ -225,7 +231,8 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
                               onChange={() => handleAnswerSelect(q.id, oIdx)}
                               className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                             />
-                            <span className="text-gray-700">{option}</span>
+                            {/* [수정됨] 시험 모드 선지 글씨 검은색으로 변경 */}
+                            <span className="text-black">{option}</span>
                           </label>
                         ))}
                       </div>
@@ -273,7 +280,7 @@ export default function QuizTemplate({ quizData, title, subtitle }) {
                           <div key={q.id} className={`p-6 rounded-lg border ${isCorrect ? 'border-gray-200 bg-white opacity-90' : 'border-red-200 bg-red-50'}`}>
                             <div className="flex gap-2 items-start mb-3">
                               {isCorrect ? <CheckCircle className="text-green-500 shrink-0 mt-1" size={20} /> : <AlertCircle className="text-red-500 shrink-0 mt-1" size={20} />}
-                              <h4 className="font-bold text-gray-800">{index + 1}. {q.question}</h4>
+                              <h4 className="font-bold text-black">{index + 1}. {q.question}</h4>
                             </div>
                             
                             <div className="ml-8 space-y-1 text-sm">
