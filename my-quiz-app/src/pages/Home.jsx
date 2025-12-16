@@ -93,6 +93,27 @@ export default function Home() {
           path="/quiz/7"
           color="bg-orange-600"
         />
+
+        <QuizCard 
+          title="Memory Attack"
+          icon={Cpu}
+          path="/quiz/8"
+          color="bg-orange-600"
+        />
+
+        <QuizCard 
+          title="고급 공격 기법"
+          icon={Cpu}
+          path="/quiz/9"
+          color="bg-orange-600"
+        />
+        
+        <QuizCard 
+          title="어플리케이션 취약점"
+          icon={Cpu}
+          path="/quiz/10"
+          color="bg-orange-600"
+        />
       </div>
     </div>
   );
