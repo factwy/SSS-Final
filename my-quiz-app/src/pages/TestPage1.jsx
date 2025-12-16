@@ -1,4 +1,4 @@
-import QuizTemplate from './QuizTemplate';
+import MockExamTemplate from './TestTemplate';
 
 const quizData = [
     { id: 1, category: "Set-UID", question: "Set-UID 프로그램에서 프로세스의 권한을 결정하는 데 사용되는 UID는?", options: ["Real UID (RUID)", "Effective UID (EUID)", "Saved UID (SUID)", "File UID (FUID)", "Group UID (GUID)"], answer: 1, explanation: "Effective UID (EUID)는 프로세스의 권한을 결정합니다. Set-UID 프로그램이 실행되면 EUID는 프로그램 소유자의 ID로 설정되어 해당 권한으로 실행됩니다." },
@@ -52,12 +52,12 @@ const quizData = [
     { id: 25, category: "Set-UID", question: "다음 중 Set-UID 프로그램의 대표적인 예시는?", options: ["/bin/ls", "/bin/cat", "/usr/bin/passwd", "/bin/echo", "/bin/grep"], answer: 2, explanation: "/usr/bin/passwd는 일반 사용자가 자신의 비밀번호를 변경할 수 있도록 root 권한으로 실행되는 대표적인 Set-UID 프로그램입니다." }
   ];
 
-export default function QuizPage11() {
-  return (
-    <QuizTemplate 
-      title="소시보 기말 대비"
-      subtitle="문제지 1"
-      quizData={quizData}
-    />
-  );
+export default function TestPage1() {
+    return (
+        <MockExamTemplate 
+        quizData={quizData} 
+        title="소시보" 
+        subtitle="모의 시험 1" 
+        />
+    );
 }
