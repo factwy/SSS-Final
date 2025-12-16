@@ -21,7 +21,15 @@ import TestPage2 from './pages/TestPage2';
 import TestPage3 from './pages/TestPage3';
 import TestPage4 from './pages/TestPage4';
 
-import CG1 from './pages/CG1';
+function CG1() {
+  return (
+    <iframe 
+      src="/CG1.html" // public 폴더 기준 경로
+      style={{ width: '100%', height: '100vh', border: 'none' }} 
+      title="CG1 Page"
+    />
+  );
+}
 
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
