@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>컴퓨터 그래픽스 문제 풀이</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .code-block {
+            background-color: #f4f4f5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            overflow-x: auto;
+            white-space: pre;
+            border: 1px solid #e4e4e7;
+            font-size: 0.875rem;
+        }
+        .answer-box {
+            display: none;
+            background-color: #ecfdf5;
+            border: 1px solid #10b981;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            color: #064e3b;
+        }
+        .answer-box.visible {
+            display: block;
+        }
+        .question-img-placeholder {
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            color: #6b7280;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .chapter-title {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans leading-relaxed">
+
+    <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg my-8 rounded-lg">
+        <h1 class="text-3xl font-bold text-center mb-2 text-blue-800">컴퓨터 그래픽스 문제 풀이</h1>
+        <p class="text-center text-gray-500 mb-8">solutions-edit.pdf (9, 10, 14, 15장) 기반</p>
+
+        <div class="flex justify-end mb-6">
+            <button onclick="toggleAllAnswers()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200">
+                정답 전체 보기/숨기기
+            </button>
+        </div>
+
+        <!-- Chapter 9: Lighting -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 chapter-title">Chapter 9: Lighting (조명)</h2>
+
+            <!-- Q1 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">1. Phong 모델 수정</h3>
+                <p class="mb-4">아래의 Phong 모델은 <strong>방향성 광원(directional light source)</strong>을 가정하고 있습니다.</p>
+                <div class="bg-gray-100 p-2 mb-4 text-center overflow-x-auto">
+                    $$ \max(n\cdot l, 0)s_d \otimes m_d + (\max(r\cdot v, 0))^{sh}s_s \otimes m_s + s_a \otimes m_a + m_e $$
+                </div>
+                <div class="space-y-4">
+                    <p>(a) <strong>여러 개의</strong> 방향성 광원을 처리하려면 이 식을 어떻게 수정해야 합니까?</p>
+                    <p>(b) 방향성 광원을 <strong>점 광원(point light source)</strong>으로 교체하려면 어떻게 수정해야 합니까? (단, 표면의 한 점이 받는 빛의 강도는 빛이 이동한 거리의 제곱에 반비례한다고 가정합니다.)</p>
+                </div>
+                <button onclick="toggleAnswer('ans9-1')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans9-1" class="answer-box">
+                    <p><strong>(a)</strong> 조명 항(term)에 따라 다르게 처리됩니다. 주변광(Ambient, \(s_a \otimes m_a\))과 방출광(Emissive, \(m_e\)) 항은 한 번만 더해지며, 확산광(Diffuse)과 정반사광(Specular) 항은 각 광원마다 계산하여 합산해야 합니다.</p>
+                    <p class="mt-2"><strong>(b)</strong> 빛 벡터 \(l\)을 각 버텍스나 프래그먼트마다 새로 계산해야 합니다(방향성 광원처럼 상수가 아님). 또한, 거리 감쇠(attenuation) 계수인 \(\frac{1}{d^2}\) (여기서 \(d\)는 거리)을 확산광 및 정반사광 항에 곱해주어야 합니다.</p>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">2. 셰이더에서의 벡터 정규화</h3>
+                <p class="mb-4">샘플 코드 9-1(Vertex Shader)의 16행에서 <code>v_view</code>는 단위 벡터이지만, 샘플 코드 9-2(Fragment Shader) 19행에서는 이를 다시 정규화(normalize)합니다. 그 이유는 무엇입니까?</p>
+                <button onclick="toggleAnswer('ans9-2')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans9-2" class="answer-box">
+                    <p><strong>래스터화(rasterization) 단계</strong>를 고려해야 합니다. 버텍스 셰이더의 출력값은 삼각형 내부의 프래그먼트를 생성할 때 선형 보간(linear interpolation)됩니다. 버텍스 위치에서는 벡터가 정규화되어 있더라도, 보간된 벡터의 길이는 1이 아닐 수 있습니다. 따라서 프래그먼트 셰이더에서 다시 정규화(re-normalization) 과정을 거쳐야 올바른 단위 벡터를 얻을 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">3. Max 함수 사용 이유</h3>
+                <p class="mb-4">샘플 코드 9-2의 24행에서 왜 <code>max</code> 함수가 필요한가요?</p>
+                <div class="code-block text-sm">vec3 diff = max(dot(normal, light), 0.0) * srcDiff * matDiff;</div>
+                <button onclick="toggleAnswer('ans9-3')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans9-3" class="answer-box">
+                    <p>내적 \(n \cdot l\)은 \(\cos\theta\)에 해당합니다. 만약 광원이 표면의 뒷면에 위치하면(back face), 내적 값이 음수가 됩니다. 조명 계산 결과가 음수(색상을 뺌)가 되는 것을 방지하기 위해, 음수일 경우 0으로 처리(clamping)하기 위해 <code>max</code>를 사용합니다.</p>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">4. 반사 벡터 (Reflection Vector)</h3>
+                <p class="mb-4">정반사광(specular reflection)을 계산하기 위해 표면 법선 \(n\)과 빛 벡터 \(l\)을 사용하여 반사 벡터 \(r\)을 구해야 합니다. 내적을 사용하여 \(r\)을 구하는 식을 쓰시오.</p>
+                <button onclick="toggleAnswer('ans9-4')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans9-4" class="answer-box">
+                    <p>$$ r = 2n(n\cdot l) - l $$</p>
+                </div>
+            </div>
+
+             <!-- Q5 -->
+             <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">5. 광택 계수 (Specular Exponent / Shininess)</h3>
+                <p class="mb-4">정반사광 항 \((\max(r\cdot v, 0))^{sh}\)를 고려해봅시다. \(sh\) (광택 계수)가 증가하면(예: 5에서 20으로), 하이라이트 영역(cone)은 어떻게 변합니까?</p>
+                <div class="question-img-placeholder">
+                    [이미지: sh=5일 때와 sh=20일 때의 하이라이트 비교]<br>
+                    (넓은 원뿔 vs 좁은 원뿔)
+                </div>
+                <button onclick="toggleAnswer('ans9-5')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans9-5" class="answer-box">
+                    <p>\(sh\) 값이 <strong>클수록</strong> 하이라이트 영역이 <strong>좁고 날카로워집니다(sharper)</strong>. 반대로 \(sh\) 값이 작으면 하이라이트가 넓고 퍼져 보입니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 10: Output Merger -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 chapter-title">Chapter 10: Output Merger (출력 병합)</h2>
+
+            <!-- Q1 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">1. Z-버퍼 업데이트 횟수</h3>
+                <p class="mb-4">서로 다른 깊이 값을 가진 4개의 삼각형이 한 픽셀 위치에서 경쟁합니다. 삼각형들이 임의의 순서로 처리될 때, 해당 픽셀 위치에서 Z-버퍼는 평균적으로 몇 번 업데이트 됩니까?</p>
+                <button onclick="toggleAnswer('ans10-1')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans10-1" class="answer-box">
+                    <p>약 <strong>2.08</strong>회.</p>
+                    <p class="text-sm text-gray-600 mt-1">(이는 조화급수(harmonic series)에 따릅니다: \(1 + 1/2 + 1/3 + 1/4 \approx 2.08\))</p>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">2. 알파 블렌딩 (Back-to-Front)</h3>
+                <p class="mb-4">세 개의 표면 점이 픽셀 위치에서 경쟁하며, <strong>뒤에서 앞(Back-to-Front)</strong> 순서로 처리됩니다.</p>
+                <p>주어진 데이터 (색상, 깊이):</p>
+                <ul class="list-disc pl-6 mb-4">
+                    <li>점 A: {(1, 0, 0, 0.5), z=0.25} (빨강)</li>
+                    <li>점 B: {(0, 1, 0, 0.5), z=0.5} (초록)</li>
+                    <li>점 C: {(0, 0, 1, 1), z=0.75} (파랑)</li>
+                </ul>
+                <p>깊이(z)에 따라 뒤에서 앞으로 정렬하면: 파랑(0.75) -> 초록(0.5) -> 빨강(0.25) 순서입니다.</p>
+                <p>최종 픽셀 색상을 계산하시오.</p>
+                <button onclick="toggleAnswer('ans10-2')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans10-2" class="answer-box">
+                    <p><strong>(0.5, 0.25, 0.25)</strong></p>
+                    <p class="text-sm mt-2 font-mono">
+                        1. 초기/배경: 파랑 (0, 0, 1) (Alpha=1이므로 불투명)<br>
+                        2. 초록 블렌딩 (Alpha 0.5):<br>
+                           \( C = 0.5 \times (0, 1, 0) + (1-0.5) \times (0, 0, 1) = (0, 0.5, 0.5) \)<br>
+                        3. 빨강 블렌딩 (Alpha 0.5):<br>
+                           \( C = 0.5 \times (1, 0, 0) + (1-0.5) \times (0, 0.5, 0.5) = (0.5, 0.25, 0.25) \)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">5. 선형 안개 (Linear Fog)</h3>
+                <p class="mb-4">선형 안개는 \( c = f c_f + (1-f) c_o \)로 표현됩니다. 여기서 \(f\)는 안개 계수(fog factor)입니다. \(f\)를 근평면 깊이(\(N\)), 원평면 깊이(\(F\)), 물체 거리(\(d\))에 대한 함수로 정의하시오.</p>
+                <button onclick="toggleAnswer('ans10-5')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans10-5" class="answer-box">
+                    <p>$$ f = \frac{d - N}{F - N} $$</p>
+                    <p class="text-sm text-gray-600">참고: 이 식에 따르면 근평면에서 f=0, 원평면에서 f=1이 됩니다.</p>
+                </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">6. 가림 순환 (Occlusion Cycle)</h3>
+                <p class="mb-4">세 개의 폴리곤이 원형으로 서로를 가리고 있는 상황을 고려해 봅시다 (예: 빨강이 초록을 덮고, 초록이 파랑을 덮고, 파랑이 다시 빨강을 덮음).</p>
+                <p>(a) 폴리곤들이 반투명하고 렌더링 순서가 빨강 -> 초록 -> 파랑일 때 결과를 예상해 보시오.</p>
+                <p>(b) 여기서 발생하는 문제점은 무엇이며, 어떻게 해결할 수 있습니까?</p>
+                <button onclick="toggleAnswer('ans10-6')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans10-6" class="answer-box">
+                    <p><strong>문제점:</strong> 올바른 깊이 정렬 순서를 정할 수 없습니다(순환 참조). 단순한 Z-버퍼링이나 화가 알고리즘(Painter's Algorithm)으로는 어느 한 부분의 겹침이 항상 잘못 렌더링됩니다.</p>
+                    <p><strong>해결책:</strong> 적어도 하나의 폴리곤을 <strong>분할(split)</strong>하여 순환 고리를 끊어야 정렬이 가능해집니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 14: Normal Mapping -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 chapter-title">Chapter 14: Normal Mapping (노멀 매핑)</h2>
+
+            <!-- Q1 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">1. 버텍스 배열 데이터 (Vertex Array Data)</h3>
+                <p class="mb-4">(a) 캐릭터에 <strong>접선 공간(tangent-space) 노멀 매핑</strong>을 적용하기 위해 버텍스 배열에 저장해야 할 데이터는 무엇입니까?</p>
+                <p>(b) 만약 캐릭터에 <strong>스킨 애니메이션(skinning)</strong>까지 추가된다면 어떤 데이터가 더 필요합니까?</p>
+                <button onclick="toggleAnswer('ans14-1')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans14-1" class="answer-box">
+                    <p><strong>(a)</strong> 위치(Position), 법선(Normal), 텍스처 좌표(Texture Coordinates), 그리고 <strong>접선(Tangent)</strong>. (종법선(Bitangent)은 셰이더에서 계산 가능합니다).</p>
+                    <p><strong>(b)</strong> 행렬 팔레트 인덱스(Matrix Palette Indices)와 블렌딩 가중치(Blend Weights).</p>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">2. 버텍스 셰이더 (빈칸 채우기)</h3>
+                <div class="code-block text-xs">
+#version 300 es
+uniform mat4 worldMat, viewMat, projMat;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 3) in vec3 tangent;
+out vec3 v_lightTS, v_viewTS;
+
+void main() {
+   vec3 worldPos = (worldMat * vec4(position, 1.0)).xyz;
+   vec3 Nor = normalize(transpose(inverse(mat3(worldMat))) * normal);
+   vec3 Tan = normalize(mat3(worldMat) * tangent);
+   vec3 Bin = cross(Nor, Tan);
+
+   // TBN 행렬 구성 (월드 공간 -> 접선 공간 변환)
+   mat3 tbnMat = _____________________; // 질문: 여기에 들어갈 코드는?
+
+   v_lightTS = tbnMat * normalize(lightDir);
+   v_viewTS = tbnMat * normalize(eyePos - worldPos);
+   gl_Position = projMat * viewMat * vec4(worldPos, 1.0);
+}
+                </div>
+                <button onclick="toggleAnswer('ans14-2')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans14-2" class="answer-box">
+                    <p><code>transpose(mat3(Tan, Bin, Nor))</code></p>
+                    <p class="text-sm text-gray-600">설명: (Tan, Bin, Nor)로 구성된 행렬은 접선 공간에서 월드 공간으로의 회전을 나타냅니다. 이것의 전치 행렬(직교 행렬이므로 역행렬과 같음)은 월드 공간에서 접선 공간으로 변환해줍니다.</p>
+                </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">6. 원통 파라미터화 (Cylinder Parameterization)</h3>
+                <p class="mb-4">y축을 중심축으로 하는 원통이 있습니다. 버텍스 \((x,y,z)\)에 대한 접선 공간 기저 벡터(T, B, N)를 어떻게 계산할 수 있는지 설명하시오.</p>
+                <div class="question-img-placeholder">
+                    [이미지: 텍스처 좌표가 매핑된 원통]<br>
+                    (축 = Y, Y축을 감싸는 형태)
+                </div>
+                <button onclick="toggleAnswer('ans14-6')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans14-6" class="answer-box">
+                    <p><strong>법선(Normal, N):</strong> 축에서 바깥쪽을 향합니다. \( N = \text{normalize}(x, 0, z) \).</p>
+                    <p><strong>종법선(Bitangent, B):</strong> y축(v 방향)을 따릅니다. \( B = (0, 1, 0) \).</p>
+                    <p><strong>접선(Tangent, T):</strong> N과 B에 모두 수직입니다. \( T = \text{normalize}(z, 0, -x) \) (또는 와인딩 방향에 따라 부호 반대).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 15: Shadow Mapping -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 chapter-title">Chapter 15: Shadow Mapping (그림자 매핑)</h2>
+
+            <!-- Q1 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">1. 그림자 맵 필터링 (PCF)</h3>
+                <p class="mb-4">그림자 맵에 투영된 어떤 프래그먼트의 현재 깊이가 <strong>0.5</strong>입니다.</p>
+                <p>주변 그림자 맵 텍셀들의 깊이 값은 다음과 같습니다:</p>
+                <div class="grid grid-cols-2 gap-2 max-w-xs mx-auto mb-4 text-center font-mono bg-gray-200 p-2 rounded">
+                    <div class="bg-white p-2">0.3</div>
+                    <div class="bg-white p-2">0.4</div>
+                    <div class="bg-white p-2">0.6</div>
+                    <div class="bg-white p-2">0.4</div>
+                </div>
+                <p>PCF(Percentage Closer Filtering) 알고리즘을 사용할 때 반환되는 가시성(visibility) 값은 얼마입니까? (바이어스 무시)</p>
+                <button onclick="toggleAnswer('ans15-1')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans15-1" class="answer-box">
+                    <p><strong>가시성 = 0.25 (또는 25%)</strong></p>
+                    <p class="text-sm mt-1">
+                        프래그먼트 깊이(0.5)와 맵의 깊이를 비교합니다:<br>
+                        - 0.3 < 0.5 (그림자)<br>
+                        - 0.4 < 0.5 (그림자)<br>
+                        - 0.6 > 0.5 (빛 받음/Lit)<br>
+                        - 0.4 < 0.5 (그림자)<br>
+                        4개의 샘플 중 1개만 "빛 받음" 상태이므로, 결과는 1/4 = 0.25입니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">3. 피터 팬 현상 (Peter Panning)</h3>
+                <p class="mb-4">구가 평면 위에 놓여 있는데, 그림자가 구와 분리되어 붕 떠 있는 것처럼 보입니다.</p>
+                <p>(a) 이 아티팩트(artifact)를 무엇이라 부릅니까?</p>
+                <p>(b) 언제 발생합니까?</p>
+                <button onclick="toggleAnswer('ans15-3')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans15-3" class="answer-box">
+                    <p><strong>(a)</strong> 피터 팬 현상 (Peter Panning).</p>
+                    <p><strong>(b)</strong> <strong>그림자 바이어스(shadow bias)</strong>가 너무 클 때 발생합니다. 바이어스가 깊이 비교를 과도하게 밀어내어, 접촉해 있는 부분조차 빛을 받는 것으로 잘못 판단하기 때문입니다.</p>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="mb-8 p-4 border rounded-lg hover:shadow-md transition">
+                <h3 class="text-lg font-semibold mb-2">4. 그림자 맵 좌표 변환</h3>
+                <p class="mb-4">두 번째 패스의 버텍스 셰이더는 클립 공간 좌표 \((x,y,z,w)\)를 그림자 맵 텍스처 좌표 \((s,t,r,q)\)로 변환합니다. 이때 \(s = 0.5x + 0.5w\) 등의 변환을 수행하는 행렬을 쓰시오.</p>
+                <button onclick="toggleAnswer('ans15-4')" class="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2">정답 보기</button>
+                <div id="ans15-4" class="answer-box">
+                    <div class="text-center overflow-x-auto">
+                    $$ \begin{pmatrix} 0.5 & 0 & 0 & 0.5 \\ 0 & 0.5 & 0 & 0.5 \\ 0 & 0 & 0.5 & 0.5 \\ 0 & 0 & 0 & 1 \end{pmatrix} $$
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('visible');
+        }
+
+        function toggleAllAnswers() {
+            const allAnswers = document.querySelectorAll('.answer-box');
+            const anyVisible = Array.from(allAnswers).some(el => el.classList.contains('visible'));
+            
+            allAnswers.forEach(el => {
+                if (anyVisible) {
+                    el.classList.remove('visible');
+                } else {
+                    el.classList.add('visible');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

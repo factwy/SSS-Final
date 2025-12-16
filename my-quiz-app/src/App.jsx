@@ -21,6 +21,8 @@ import TestPage2 from './pages/TestPage2';
 import TestPage3 from './pages/TestPage3';
 import TestPage4 from './pages/TestPage4';
 
+import CG1 from './pages/CG1';
+
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 font-sans">
@@ -68,6 +70,7 @@ export default function App() {
           <Route path="/test/2" element={<TestPage2 />} />
           <Route path="/test/3" element={<TestPage3 />} />
           <Route path="/test/4" element={<TestPage4 />} />
+          <Route path="/cg/1" element={<CG1 />} />
         </Routes>
       </Layout>
     </BrowserRouter>
