@@ -19,6 +19,7 @@ import QuizPage10 from './pages/QuizPage10';
 import TestPage1 from './pages/TestPage1';
 import TestPage2 from './pages/TestPage2';
 import TestPage3 from './pages/TestPage3';
+import TestPage4 from './pages/TestPage4';
 
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/test/1" element={<TestPage1 />} />
           <Route path="/test/2" element={<TestPage2 />} />
           <Route path="/test/3" element={<TestPage3 />} />
+          <Route path="/test/4" element={<TestPage4 />} />
         </Routes>
       </Layout>
     </BrowserRouter>
