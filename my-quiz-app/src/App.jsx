@@ -31,6 +31,16 @@ function CG1() {
   );
 }
 
+function CG2() {
+  return (
+    <iframe 
+      src="/CG2.html" // public 폴더 기준 경로
+      style={{ width: '100%', height: '100vh', border: 'none' }} 
+      title="CG2 Page"
+    />
+  );
+}
+
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 font-sans">
@@ -79,6 +89,7 @@ export default function App() {
           <Route path="/test/3" element={<TestPage3 />} />
           <Route path="/test/4" element={<TestPage4 />} />
           <Route path="/cg/1" element={<CG1 />} />
+          <Route path="/cg/2" element={<CG2 />} />
         </Routes>
       </Layout>
     </BrowserRouter>

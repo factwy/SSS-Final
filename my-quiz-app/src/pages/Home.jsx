@@ -42,6 +42,7 @@ export default function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <QuizCard title="CG" desc="컴퓨터 그래픽스 퀴즈" icon={Globe} path="/cg/1" color="bg-blue-500" />
+        <QuizCard title="CG" desc="컴퓨터 그래픽스 퀴즈" icon={Globe} path="/cg/2" color="bg-blue-500" />
       </div>
     </div>
   );
