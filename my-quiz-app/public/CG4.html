@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>컴퓨터 그래픽스 심화 퀴즈 (상세)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .code-block {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background-color: #1f2937;
+            color: #e5e7eb;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin-bottom: 0.5rem;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .answer-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .question-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            border: 1px solid #f3f4f6;
+        }
+        .topic-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .topic-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-5xl mx-auto px-4 py-12">
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-slate-800 mb-4 tracking-tight">컴퓨터 그래픽스 심화 퀴즈</h1>
+            <p class="text-lg text-slate-600">렌더링 파이프라인 정복하기</p>
+            <div class="mt-4 flex justify-center gap-4 text-sm text-slate-500">
+                <span>총 24문항</span>
+                <span>•</span>
+                <span>6개 주제</span>
+                <span>•</span>
+                <span>핵심 이론 & 실전</span>
+            </div>
+        </header>
+
+        <!-- Topic 1: Lighting -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-blue-100 text-blue-800">Topic 1</span>
+                <h2 class="text-2xl font-bold text-slate-800">픽셀 단위 조명 (Phong Shading)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q1-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q1-1. 보간과 정규화 (Interpolation & Normalization)</h3>
+                    <p class="mb-4 text-slate-700">픽셀 단위 조명(Phong Shading)에서 법선 벡터는 Vertex Shader에서 Fragment Shader로 varying(또는 out/in) 변수로 전달됩니다. <br><br>Vertex Shader에서 이미 정규화(normalize)를 했더라도, <strong>Fragment Shader 내부에서 법선 벡터에 대해 다시 <code>normalize()</code> 함수를 호출해야 하는 구체적인 이유</strong>를 설명하세요. Rasterizer의 어떤 구체적인 연산이 이러한 필요성을 유발합니까?</p>
+                    <button onclick="toggle('q1-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q1-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">Rasterizer 단계에서 Vertex Shader로부터 넘어온 값들을 픽셀(Fragment) 단위로 보간(Interpolation)할 때 <strong>Linear Interpolation(선형 보간)</strong>을 수행하기 때문입니다.</p>
+                        <p class="mb-2">3차원 공간상의 정규화된 벡터들의 선형 보간 결과는 길이가 1보다 작아지는 경우가 발생하므로(벡터의 방향만 보간되고 길이는 줄어듦), Fragment Shader에서 조명 계산을 수행하기 직전에 <code>normalize()</code>를 호출하여 벡터의 길이를 다시 1로 만들어주어야 합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Rasterizer가 Vertex 데이터를 Fragment로 변환하는 핵심 로직(Barycentric Interpolation)의 수학적 특성을 이해하고 있는지, 그리고 이것이 조명 품질(Highlight의 정확도)에 미치는 영향을 파악해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q1-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q1-2. GLSL Diffuse 구현</h3>
+                    <p class="mb-4 text-slate-700">정규화된 법선 $N$, 정규화된 조명 방향 $L$, 디퓨즈 재질 색상 <code>matDiff</code>가 있다고 가정할 때, Fragment Shader에서 Diffuse 항을 계산하는 정확한 GLSL 코드 라인을 작성하세요. <br><br><strong>주의:</strong> 빛이 표면의 뒷면을 비추는 경우를 반드시 엄격하게 처리해야 합니다.</p>
+                    <button onclick="toggle('q1-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q1-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <div class="code-block">// dot product 결과가 음수일 경우 0으로 클램핑(clamping)해야 함
+vec3 diffuse = max(dot(N, L), 0.0) * matDiff;</div>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 조명 공식에서 Cosine 법칙($N \cdot L$)을 코드로 구현할 때, 빛이 물체 뒷면에서 비출 경우 음수 값이 나와 색상이 깨지는 현상을 방지하는 <code>max(..., 0.0)</code> 처리(Clamping)가 필수적임을 알고 있어야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q1-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q1-3. 변수 저장 한정자 (Variable Storage Qualifiers)</h3>
+                    <p class="mb-4 text-slate-700">Phong Lighting을 위한 Fragment Shader에서, <code>lightPos</code>(광원 위치)는 보통 <code>uniform</code>으로 선언되는 반면, <code>v_normal</code>(표면 법선)은 <code>in</code> 변수로 선언됩니다. 렌더링되는 프리미티브(primitive) 전체에 걸쳐 이 데이터들이 어떻게 변하는지 그 차이점을 설명하세요.</p>
+                    <button onclick="toggle('q1-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q1-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li><strong>Uniform (lightPos):</strong> Draw Call(Primitive 렌더링) 동안 모든 Fragment에서 동일한 값을 유지합니다. 광원의 위치는 물체의 픽셀 위치와 상관없이 고정되어 있기 때문입니다.</li>
+                            <li><strong>In/Varying (v_normal):</strong> Vertex Shader에서 출력된 각 정점의 Normal 값이 Rasterizer를 거쳐 보간된 후, 각 Fragment마다 서로 다른 값을 가집니다. 곡면을 표현하기 위해 각 픽셀마다 법선 벡터가 달라야 하기 때문입니다.</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> GPU 메모리 처리 방식과 Pipeline 상에서 데이터가 어떻게 전달되고 변환되는지(Constant vs. Interpolated)를 구분할 수 있어야 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic 2: Output Merger -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-purple-100 text-purple-800">Topic 2</span>
+                <h2 class="text-2xl font-bold text-slate-800">출력 병합기 (Output Merger)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q2-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q2-1. 알파 블렌딩 계산</h3>
+                    <p class="mb-4 text-slate-700">투명한 빨간색 삼각형($C_{src} = (1, 0, 0, 0.5)$)을 불투명한 파란색 배경($C_{dst} = (0, 0, 1, 1)$) 위에 렌더링한다고 가정합시다. 표준 블렌딩 공식 $C_{final} = C_{src}\alpha + C_{dst}(1-\alpha)$를 사용하여 최종 픽셀 색상을 계산하세요.</p>
+                    <button onclick="toggle('q2-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q2-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">$$C_{final} = (1, 0, 0) \times 0.5 + (0, 0, 1) \times (1 - 0.5)$$</p>
+                        <p class="mb-2">$$C_{final} = (0.5, 0, 0) + (0, 0, 0.5)$$</p>
+                        <p class="mb-2"><strong>결과: $(0.5, 0, 0.5)$ (보라색 계열)</strong></p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Output Merger 단계에서 색상 버퍼(Color Buffer)에 값이 어떻게 섞이는지 수학적으로 정확히 계산할 수 있어야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q2-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q2-2. Z-Buffer 로직</h3>
+                    <p class="mb-4 text-slate-700">Depth Test 함수가 <code>GL_LESS</code>(기본값)로 설정된 경우, 새로운 프래그먼트의 색상이 프레임버퍼의 기존 픽셀 색상을 대체하게 되는 논리적 조건을 설명하세요. 또한, 이 경우 Depth Buffer의 값에는 어떤 일이 발생합니까?</p>
+                    <button onclick="toggle('q2-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q2-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Condition:</strong> 현재 처리 중인 Fragment의 z값($z_{curr}$)이 Depth Buffer에 저장된 z값($z_{buffer}$)보다 작을 경우 (z_curr < z_buffer)에만 통과합니다. (즉, 카메라에 더 가까울 때).</p>
+                        <p class="mb-2"><strong>Update:</strong> 테스트를 통과하면 Framebuffer의 색상이 현재 Fragment 색상으로 교체되고, <strong>Depth Buffer의 값도 $z_{curr}$로 갱신(Update)</strong>됩니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 은면 제거(Hidden Surface Removal) 알고리즘의 핵심인 Z-buffering의 비교 로직과 버퍼 갱신 메커니즘을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q2-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q2-3. 렌더링 순서 (Rendering Order)</h3>
+                    <p class="mb-4 text-slate-700">불투명(Opaque) 물체와 투명(Transparent) 물체가 모두 포함된 씬을 렌더링할 때, 올바른 시각적 결과를 보장하기 위해 요구되는 엄격한 렌더링 순서를 설명하세요. 왜 Z-buffer 때문에 투명 물체를 먼저 렌더링하면 안 됩니까?</p>
+                    <button onclick="toggle('q2-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q2-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Order:</strong> Opaque(불투명) 물체를 먼저 그립니다 (순서 상관 없음, Z-buffer가 처리). 그 후 Transparent(투명) 물체는 <strong>Back-to-Front(뒤에서 앞으로)</strong> 순서로 정렬하여 그립니다.</p>
+                        <p class="mb-2"><strong>Reason:</strong> 투명 물체를 먼저 그리고 Z-buffer를 갱신해버리면, 그 뒤에 있는 불투명 물체가 Z-test에 실패하여 아예 그려지지 않는(투명한 물체 뒤가 뚫려 보이는) 현상이 발생합니다. 투명 물체는 뒤쪽 색상과 블렌딩되어야 하므로 뒤쪽 색상이 먼저 버퍼에 채워져 있어야 합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Alpha Blending은 교환 법칙이 성립하지 않으므로, 렌더링 순서(Sorting)가 최종 결과물에 결정적인 영향을 미친다는 것을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q2-4 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q2-4. Early Z-Test</h3>
+                    <p class="mb-4 text-slate-700">논리적으로 Depth Test는 Output Merger 단계에서 발생합니다. 하지만 현대 GPU는 "Early Z-Test"를 수행합니다. 이것은 파이프라인의 어디에서 발생하며, 어떤 연산적 이점을 가집니까?</p>
+                    <button onclick="toggle('q2-4')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q2-4" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Location:</strong> Fragment Shader 실행 이전 (Rasterizer 직후).</p>
+                        <p class="mb-2"><strong>Benefit:</strong> Fragment Shader는 무거운 연산(조명, 텍스처링)을 수행하는데, 어차피 다른 물체에 가려져 보이지 않을 픽셀이라면 <strong>미리 깊이 테스트를 수행하여 탈락시킴으로써 불필요한 Fragment Shader 연산을 방지(Shading cost 절약)</strong>하여 성능을 최적화합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 파이프라인의 최적화 기법과 Fragment Shader의 연산 비용 개념을 이해하고 있는지 묻는 질문입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic 3: Normal Mapping -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-indigo-100 text-indigo-800">Topic 3</span>
+                <h2 class="text-2xl font-bold text-slate-800">노멀 매핑 (Normal Mapping)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q3-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q3-1. 탄젠트 공간 기저 (Tangent Space Basis)</h3>
+                    <p class="mb-4 text-slate-700">Normal Mapping을 수행하려면 TBN 행렬이 필요합니다. 삼각형 표면 위에서 벡터 T, B, N은 기하학적으로 무엇을 나타냅니까? 구체적으로, Tangent (T) 벡터는 텍스처 좌표와 관련하여 어떻게 유도됩니까?</p>
+                    <button onclick="toggle('q3-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q3-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li><strong>N (Normal):</strong> 표면의 법선 벡터 (Vertex Normal).</li>
+                            <li><strong>T (Tangent):</strong> 텍스처 좌표계의 U(혹은 S)축 방향과 일치하는 표면 접선 벡터.</li>
+                            <li><strong>B (Bitangent/Binormal):</strong> 텍스처 좌표계의 V(혹은 T)축 방향과 일치하는 표면 접선 벡터. ($N \times T$ 로 계산 가능).</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Normal Map은 텍스처 좌표공간(Tangent Space)을 기준으로 법선을 저장하므로, 기하 정보(Mesh)와 텍스처 정보(UV)를 연결하는 TBN 기저 벡터의 정의를 알아야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q3-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q3-2. 좌표 공간 변환 전략</h3>
+                    <p class="mb-4 text-slate-700">Normal Mapping 쉐이더에서, 텍스처에서 샘플링한 법선을 월드 공간으로 변환하는 대신, 종종 조명 벡터(Light Vector)와 시선 벡터(View Vector)를 탄젠트 공간(Tangent Space)으로 변환합니다. 왜 이 방식이 Fragment Shader에서 연산적으로 더 효율적입니까?</p>
+                    <button onclick="toggle('q3-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q3-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">Vertex Shader는 Vertex 단위로 실행되지만 Fragment Shader는 픽셀 단위로 실행됩니다. Light/View 벡터를 Vertex Shader에서 Tangent Space로 변환하면 <strong>정점(Vertex) 수만큼만 행렬 연산</strong>을 수행하면 됩니다.</p>
+                        <p class="mb-2">반면, Normal을 World Space로 변환하려면 매 픽셀마다(Per-fragment) TBN 행렬 곱셈을 해야 하므로 연산량이 매우 많아집니다. 따라서 연산을 Vertex Shader로 옮기는 것이 훨씬 효율적입니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 픽셀 셰이더의 부하를 줄이기 위해 연산을 버텍스 셰이더로 옮기는 최적화 전략(Space Change)을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q3-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q3-3. 데이터 디코딩 (Data Decoding)</h3>
+                    <p class="mb-4 text-slate-700">Normal Map은 벡터를 RGB 색상 공간 [0, 1]에 저장합니다. 샘플링된 텍스처 값 <code>vec3 texColor</code>를 다시 기하학적 법선 벡터 범위 [-1, 1]로 변환하는 수학적 공식을 작성하세요.</p>
+                    <button onclick="toggle('q3-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q3-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">$$Normal = texColor \times 2.0 - 1.0$$</p>
+                        <div class="code-block">vec3 normal = normalize(texture(normalMap, uv).rgb * 2.0 - 1.0);</div>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 데이터의 저장 포맷(Unsigned Normalized)과 실제 수학적 계산에 필요한 포맷(Signed Vector) 간의 매핑 관계를 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q3-4 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q3-4. 좌표계 (Coordinate Systems)</h3>
+                    <p class="mb-4 text-slate-700">만약 표면이 완전히 평평하고 탄젠트 공간의 양의 Z축을 직접 향하고 있다면, Normal Map에 저장되는 RGB 색상 값은 무엇입니까?</p>
+                    <button onclick="toggle('q3-4')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q3-4" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Vector:</strong> $(0, 0, 1)$</p>
+                        <p class="mb-2"><strong>Calculation:</strong></p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li>$R = (0 + 1) / 2 = 0.5$ (128)</li>
+                            <li>$G = (0 + 1) / 2 = 0.5$ (128)</li>
+                            <li>$B = (1 + 1) / 2 = 1.0$ (255)</li>
+                        </ul>
+                        <p class="mb-2"><strong>Result: RGB (0.5, 0.5, 1.0) 혹은 푸른색(Blue).</strong></p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Normal Map이 왜 주로 푸른색을 띠는지에 대한 원리이자, Tangent Space의 Z축이 표면의 법선 방향임을 이해하는지 확인합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic 4: Shadow Mapping -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-gray-200 text-gray-800">Topic 4</span>
+                <h2 class="text-2xl font-bold text-slate-800">그림자 매핑 (Shadow Mapping)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q4-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q4-1. 2-패스 알고리즘 (Two-Pass Algorithm)</h3>
+                    <p class="mb-4 text-slate-700">Shadow Mapping은 두 번의 렌더링 패스(pass)를 필요로 합니다. 구체적으로 첫 번째 패스의 렌더 타겟(Render Target)은 무엇이며, 씬은 누구의 시점에서 렌더링됩니까?</p>
+                    <button onclick="toggle('q4-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q4-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Viewpoint:</strong> 광원(Light Source)의 시점.</p>
+                        <p class="mb-2"><strong>Render Target:</strong> 화면(Color Buffer)이 아닌 <strong>Depth Map (Shadow Map)</strong>. 오직 깊이 정보(z-value)만을 저장합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Shadow Mapping의 핵심 아이디어(광원 입장에서 보이지 않으면 그림자다)를 구현하기 위한 파이프라인 설정을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q4-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q4-2. 그림자 계산 (2nd Pass)</h3>
+                    <p class="mb-4 text-slate-700">두 번째 패스에서, $z_{current}$를 렌더링 중인 프래그먼트에서 광원까지의 거리라고 하고, $z_{map}$을 해당 위치의 섀도우 맵에서 샘플링한 값이라고 합시다. 프래그먼트가 "그림자 속에 있다"고 간주되는 조건은 무엇입니까?</p>
+                    <button onclick="toggle('q4-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q4-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">$$z_{current} > z_{map}$$</p>
+                        <p class="mb-2">즉, 현재 픽셀이 광원까지의 거리보다 Shadow Map에 저장된(광원에서 가장 가까운 물체까지의) 거리가 더 짧다면, 현재 픽셀 앞에 무언가 가로막고 있다는 뜻이므로 그림자 영역입니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Shadow Mapping의 깊이 비교 알고리즘의 핵심 논리를 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q4-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q4-3. 섀도우 아크네 (Shadow Acne)</h3>
+                    <p class="mb-4 text-slate-700">"섀도우 아크네(Shadow Acne)"(표면의 줄무늬 아티팩트)의 원인을 설명하세요. 경사면에서 엄격하게 $z_{current} > z_{map}$을 체크하는 것이 왜 이 문제를 유발합니까?</p>
+                    <button onclick="toggle('q4-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q4-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2"><strong>Cause:</strong> Shadow Map의 <strong>해상도 한계(Resolution limit)</strong>로 인해 하나의 텍셀(Texel)이 커버하는 월드 공간의 영역이 넓어서 발생합니다.</p>
+                        <p class="mb-2">경사면의 경우, 픽셀의 실제 깊이($z_{current}$)는 연속적으로 변하지만, 섀도우 맵에 저장된 깊이($z_{map}$)는 계단식(Step)으로 변합니다. 이로 인해 같은 표면임에도 불구하고 수치 오차로 인해 일부는 그림자로, 일부는 빛으로 판정되어 줄무늬 패턴(Self-shadowing)이 생깁니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 텍스처 기반 알고리즘의 한계(Aliasing, Precision)와 그로 인한 시각적 아티팩트의 원인을 분석할 수 있어야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q4-4 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q4-4. PCF (Percentage Closer Filtering)</h3>
+                    <p class="mb-4 text-slate-700">PCF(Percentage Closer Filtering)는 "Soft Shadows"를 만들거나 그림자 경계의 앨리어싱을 줄이는 데 사용됩니다. 단일 깊이 비교 대신, PCF는 어떤 논리적 연산을 수행합니까?</p>
+                    <button onclick="toggle('q4-4')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q4-4" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">현재 픽셀 주변의 <strong>인접한 텍셀(Texel)들을 여러 번 샘플링(Sampling)</strong>하여 각각 깊이 비교를 수행한 뒤, 그 결과(0 또는 1)를 평균(Average) 냅니다. 이를 통해 그림자의 경계면을 부드럽게(Blurring 효과) 처리합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Hard Shadow의 앨리어싱 문제를 해결하기 위한 Filtering 기법을 이해해야 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic 5: PBR -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-yellow-100 text-yellow-800">Topic 5</span>
+                <h2 class="text-2xl font-bold text-slate-800">물리기반 렌더링 (PBR)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q5-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q5-1. 에너지 보존 (Energy Conservation)</h3>
+                    <p class="mb-4 text-slate-700">PBR에서 에너지 보존(Energy Conservation)의 개념을 설명하세요. 구체적으로 Diffuse 성분, Specular 성분, 그리고 입사광 에너지(Incoming light energy) 사이의 관계는 무엇입니까?</p>
+                    <button onclick="toggle('q5-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q5-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">물체 표면에서 반사되는 빛의 총량(Diffuse + Specular)은 들어온 빛의 총량(Incoming Light)을 초과할 수 없다는 물리 법칙입니다.</p>
+                        <p class="mb-2">수식적으로는 반사되지 않고 매질 내부로 굴절된 빛(Diffuse)과 표면에서 바로 반사된 빛(Specular)의 비율이 서로 상보적($1 - Specular$)이어야 함을 의미합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 기존 Phong Lighting(단순 더하기)과 달리 PBR이 왜 더 사실적인지(에너지가 뻥튀기되지 않음)를 설명하는 핵심 원리입니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q5-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q5-2. 미세면 기하 함수 (Microfacet G Function)</h3>
+                    <p class="mb-4 text-slate-700">Cook-Torrance BRDF에서 G (Geometry) 항은 "Self-Shadowing"과 "Self-Masking"을 설명합니다. 개념적으로, 이러한 경우 광선(light rays)에 어떤 일이 발생합니까?</p>
+                    <button onclick="toggle('q5-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q5-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">표면이 미세하게 거칠 경우(Microfacets):</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li><strong>Self-Shadowing:</strong> 들어오는 빛이 튀어나온 미세면에 가려져 오목한 부분에 도달하지 못함.</li>
+                            <li><strong>Self-Masking:</strong> 반사된 빛이 카메라로 향하다가 튀어나온 미세면에 가려짐.</li>
+                        </ul>
+                        <p class="mb-2">이 두 현상으로 인해 빛이 차단되어 반사광이 어두워지는 현상을 수학적으로 보정하는 항입니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 거친 표면에서 빛이 어떻게 상호작용하여 소멸되는지 물리적 모델을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q5-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q5-3. 프레넬 방정식 (Fresnel Equation)</h3>
+                    <p class="mb-4 text-slate-700">F (Fresnel) 항은 시야각(viewing angle)에 따라 표면의 반사율이 어떻게 변하는지를 설명합니다. 시야각이 "Grazing Angle"(표면과 거의 평행한 각도)에 가까워질수록 반사율의 변화를 묘사하세요.</p>
+                    <button onclick="toggle('q5-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q5-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">시선이 표면과 거의 평행해지는 <strong>Grazing Angle(스치듯 보는 각도)</strong>로 갈수록 재질의 종류(금속/비금속)에 상관없이 <strong>반사율(Reflectivity)이 급격히 증가하여 거의 100%(거울처럼 반사)</strong>가 됩니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 물체의 외곽선 부분에서 발생하는 강한 반사광(Rim Lighting 효과 등)의 물리적 근거를 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q5-4 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q5-4. 메탈릭 워크플로우 (Metallic Workflow)</h3>
+                    <p class="mb-4 text-slate-700">Metallic/Roughness 워크플로우에서, Metallic = 1.0 (완전 금속)으로 설정하는 것이 비금속(Metallic = 0.0)과 비교했을 때 "Diffuse" 색상과 "Specular" 색상의 원천(source)을 어떻게 변화시킵니까?</p>
+                    <button onclick="toggle('q5-4')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q5-4" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li><strong>Non-Metal (Dielectric):</strong> Diffuse 색상은 Albedo 맵에서 오고, Specular는 보통 흰색(또는 낮은 고정값)을 가집니다.</li>
+                            <li><strong>Metal (Metallic):</strong> Diffuse 성분이 사라집니다(Black/0) (금속 내부는 빛을 흡수함). 대신 Specular(반사) 색상이 Albedo 맵의 색상을 따라갑니다 (유색 반사).</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> PBR 텍스처링에서 금속과 비금속을 구분하여 파라미터를 설정하는 로직과 그 시각적 결과의 차이를 이해해야 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic 6: Ray Tracing -->
+        <section class="mb-12">
+            <div class="topic-header">
+                <span class="topic-badge bg-red-100 text-red-800">Topic 6</span>
+                <h2 class="text-2xl font-bold text-slate-800">레이 트레이싱 (Ray Tracing)</h2>
+            </div>
+            
+            <div class="grid gap-6">
+                <!-- Q6-1 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q6-1. 레이 캐스팅 vs 래스터화</h3>
+                    <p class="mb-4 text-slate-700">근본적으로 래스터화(Rasterization)는 "Geometry to Pixels"로 매핑합니다. Ray Casting (혹은 Ray Tracing)은 매핑 방향(Loop 순서) 측면에서 어떻게 다릅니까?</p>
+                    <button onclick="toggle('q6-1')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q6-1" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">Ray Tracing은 <strong>"Pixels to Geometry" (역방향)</strong> 방식을 사용합니다.</p>
+                        <p class="mb-2">카메라(눈)에서 각 픽셀을 향해 가상의 광선(Ray)을 쏘아서, 그 광선이 장면(Scene)의 어떤 물체와 가장 먼저 교차(Intersection)하는지를 찾아 색상을 결정합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> 두 렌더링 패러다임의 가장 기초적인 알고리즘 흐름의 차이를 명확히 구분해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q6-2 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q6-2. Whitted Ray Tracing (재귀)</h3>
+                    <p class="mb-4 text-slate-700">Whitted Ray Tracing에서, Primary Ray가 매끄러운 투명 물체에 부딪혔을 때, 일반적으로 재귀적으로 생성되는 두 가지 새로운 유형의 Secondary Ray는 무엇입니까?</p>
+                    <button onclick="toggle('q6-2')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q6-2" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li><strong>Reflection Ray (반사광선):</strong> 표면의 법선을 기준으로 반사각 방향으로 나가는 광선.</li>
+                            <li><strong>Refraction (Transmission) Ray (굴절/투과광선):</strong> 스넬의 법칙(Snell's Law)에 따라 물체 내부로 꺾여 들어가는 광선.</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Ray Tracing이 반사, 굴절 같은 전역 조명(Global Illumination) 효과를 어떻게 재귀적으로 처리하는지 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q6-3 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q6-3. 섀도우 레이 (Shadow Rays)</h3>
+                    <p class="mb-4 text-slate-700">개념적으로, Ray Tracer는 특정 교차점(intersection point)이 그림자 속에 있는지 어떻게 판별합니까? (Shadow Map을 언급하지 마세요).</p>
+                    <button onclick="toggle('q6-3')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q6-3" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">교차점(Intersection Point)에서 광원(Light Source) 방향으로 <strong>"Shadow Ray"</strong>를 쏘아봅니다.</p>
+                        <p class="mb-2">만약 이 Shadow Ray가 광원에 도달하기 전에 다른 물체와 부딪힌다면, 해당 지점은 그 물체에 가려진 것이므로 그림자로 판정합니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Rasterization의 Shadow Map 방식과 달리, Ray Tracing에서는 그림자 판정이 광선 교차 검사(Intersection Test)를 통해 직접적으로 이루어짐을 이해해야 합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Q6-4 -->
+                <div class="question-card">
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Q6-4. 레이 트레이싱 성능</h3>
+                    <p class="mb-4 text-slate-700">왜 Ray Tracing은 전통적으로 Rasterization보다 훨씬 느립니까? "교차 검사(Intersection Test)" 측면에서 설명하세요.</p>
+                    <button onclick="toggle('q6-4')" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded font-semibold text-slate-700 transition border border-slate-300">정답 확인</button>
+                    <div id="q6-4" class="hidden answer-box fade-in">
+                        <p class="font-bold text-green-800 mb-2">정답:</p>
+                        <p class="mb-2">Rasterization은 물체를 화면에 투영(Projection)하여 빠르게 처리하지만, Ray Tracing은 수많은 광선(Rays) 각각에 대해 장면 내의 <strong>모든 삼각형(혹은 기하물체)과의 교차 검사(Intersection Test)</strong>를 수행해야 할 수도 있습니다.</p>
+                        <p class="mb-2">이 연산 비용이 매우 크기 때문에(가속화 구조 BVH 등이 없으면 $O(Pixel \times Triangle)$), 실시간 처리가 어렵습니다.</p>
+                        <p class="text-sm text-gray-500 mt-2 border-t border-green-200 pt-2"><strong>Why this matters:</strong> Ray Tracing의 계산 복잡도와 이를 극복하기 위한 하드웨어 가속(RT Core)이나 가속 구조(Acceleration Structure)의 필요성을 이해하는 배경이 됩니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function toggle(id) {
+            const el = document.getElementById(id);
+            const btn = el.previousElementSibling;
+            
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                btn.textContent = '정답 숨기기';
+            } else {
+                el.classList.add('hidden');
+                btn.textContent = '정답 확인';
+            }
+        }
+    </script>
+</body>
+</html>

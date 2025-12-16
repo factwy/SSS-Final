@@ -41,6 +41,25 @@ function CG2() {
   );
 }
 
+function CG3() {
+  return (
+    <iframe 
+      src="/CG3.html" // public 폴더 기준 경로
+      style={{ width: '100%', height: '100vh', border: 'none' }} 
+      title="CG3 Page"
+    />
+  );
+}
+function CG4() {
+  return (
+    <iframe 
+      src="/CG4.html" // public 폴더 기준 경로
+      style={{ width: '100%', height: '100vh', border: 'none' }} 
+      title="CG4 Page"
+    />
+  );
+}
+
 // 공통 레이아웃 (상단 네비게이션 바)
 const Layout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 font-sans">
@@ -90,6 +109,8 @@ export default function App() {
           <Route path="/test/4" element={<TestPage4 />} />
           <Route path="/cg/1" element={<CG1 />} />
           <Route path="/cg/2" element={<CG2 />} />
+          <Route path="/cg/3" element={<CG3 />} />
+          <Route path="/cg/4" element={<CG4 />} />
         </Routes>
       </Layout>
     </BrowserRouter>

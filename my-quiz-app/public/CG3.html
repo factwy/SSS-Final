@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>컴퓨터 그래픽스 기술 퀴즈</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .code-block {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-slate-800 mb-4 tracking-tight">컴퓨터 그래픽스 기술 퀴즈</h1>
+            <p class="text-lg text-slate-600">렌더링 파이프라인, PBR, 수학 & 쉐이더</p>
+        </header>
+
+        <!-- Topic 1 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold mb-2">주제 1: 조명 (Phong 모델 & GLSL)</span>
+                <h2 class="text-xl font-bold mb-4">문제 1</h2>
+                <p class="mb-4">
+                    GLSL로 구현된 퐁 조명 모델(Phong Lighting Model)에서, 스펙큘러(Specular) 항을 계산하기 위해 종종 반사 벡터 $R$과 시선 벡터 $V$를 구합니다. 다음 프래그먼트 쉐이더(Fragment Shader) 코드 조각을 고려해 보세요:
+                </p>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg mb-4 overflow-x-auto code-block text-sm">
+<pre>in vec3 v_normal; // 버텍스 쉐이더에서 보간된 법선(Normal)
+in vec3 v_view;   // 버텍스 쉐이더에서 보간된 시선 벡터(View Vector)
+uniform vec3 lightDir; 
+
+void main() {
+    vec3 N = v_normal; 
+    vec3 L = normalize(lightDir);
+    
+    // (A) 디퓨즈(Diffuse) 항 계산
+    float diff = max(dot(N, L), 0.0);
+
+    // ... (이후 스펙큘러 계산) ...
+}</pre>
+                </div>
+                <p class="mb-2 font-semibold">위 코드의 <code>vec3 N = v_normal;</code> 라인에는 래스터화(Rasterization) 과정과 관련된 치명적인 논리적 오류가 있습니다.</p>
+                <ol class="list-decimal list-inside space-y-1 ml-2 text-gray-700">
+                    <li>버텍스 쉐이더(Vertex Shader)에서 법선을 정규화(Normalize)했음에도 불구하고, 이 코드가 시각적 아티팩트(부정확한 조명 하이라이트)를 생성하는 이유를 수학적으로 설명하세요.</li>
+                    <li>코드를 올바르게 수정하세요.</li>
+                </ol>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans1')" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans1" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-3 text-gray-800 leading-relaxed">
+                            <strong>Rasterizer의 선형 보간(Linear Interpolation) 특성 때문입니다.</strong> Vertex Shader에서 정규화(normalize)된 법선 벡터들을 내보내더라도, Rasterizer 단계에서 정점 사이의 값을 선형 보간할 때 벡터의 크기(length)가 1보다 작아지는 현상이 발생합니다. 따라서 Fragment Shader에 도달한 <code>v_normal</code>은 더 이상 단위 벡터(Unit Vector)가 아닙니다. <code>dot(N, L)</code> 계산은 $N$이 단위 벡터일 때만 $\cos\theta$로서 유의미하므로, 정규화되지 않은 $N$을 사용하면 조명 연산 결과가 왜곡됩니다.
+                        </p>
+                        <p class="mb-3 font-mono bg-white p-2 border border-green-200 rounded inline-block text-green-700">
+                            Correction: vec3 N = normalize(v_normal);
+                        </p>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> 이 문제는 Vertex Shader와 Fragment Shader 사이의 데이터 전송 과정(Varying variable interpolation)을 정확히 이해하고 있는지 묻습니다. 단순 코딩이 아니라, Rasterizer 하드웨어의 수학적 동작 원리를 알아야 풀 수 있습니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold mb-2">주제 2: 출력 병합기 (알파 블렌딩)</span>
+                <h2 class="text-xl font-bold mb-4">문제 2</h2>
+                <p class="mb-4">두 개의 삼각형을 동일한 픽셀 좌표 $(x, y)$에 렌더링한다고 가정해 봅시다.</p>
+                <ul class="list-disc list-inside mb-4 space-y-1 ml-2 text-gray-700">
+                    <li>삼각형 A (빨강): 색상 $(1, 0, 0, 1)$, 깊이 $z = 0.5$ (불투명)</li>
+                    <li>삼각형 B (파랑): 색상 $(0, 0, 1, 0.5)$, 깊이 $z = 0.2$ (반투명)</li>
+                </ul>
+                <p class="mb-4">
+                    깊이 테스트(Depth Test)가 활성화되어 있고(GL_LESS), 알파 블렌딩(Alpha Blending)은 <code>glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)</code>로 설정되어 있습니다.
+                    <br>
+                    삼각형 A를 먼저 렌더링한 다음 삼각형 B를 렌더링할 때, 프레임버퍼(Framebuffer)에 최종적으로 저장되는 색상을 계산하세요.
+                    <br>
+                    <span class="text-sm text-gray-500">(배경색은 검정 $(0,0,0,0)$이고 깊이 버퍼는 1.0으로 초기화되었다고 가정합니다).</span>
+                </p>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans2')" class="w-full sm:w-auto px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans2" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-2 text-lg font-semibold">최종 색상: $(0.5, 0, 0.5, 0.75)$</p>
+                        <p class="text-sm text-gray-600 mb-4">(RGB만 묻는 경우 $(0.5, 0, 0.5)$)</p>
+                        
+                        <h4 class="font-semibold text-gray-800 mb-1">계산 과정:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700 mb-2">
+                            <li>삼각형 A 그리기: 깊이 $0.5 < 1.0$ (통과). 저장된 색상: $(1, 0, 0, 1)$. 저장된 깊이: $0.5$.</li>
+                            <li>삼각형 B 그리기: 깊이 $0.2 < 0.5$ (통과).</li>
+                        </ul>
+                        <p class="text-gray-700 mb-2">A 위에 B 블렌딩:</p>
+                        <div class="bg-white p-3 rounded border border-green-200 text-gray-800 font-serif">
+                            $$C_{final} = \alpha_{src} C_{src} + (1 - \alpha_{src}) C_{dst}$$
+                            <br>
+                            Source ($C_{src}$): 삼각형 B $(0, 0, 1)$, $\alpha = 0.5$<br>
+                            Destination ($C_{dst}$): 삼각형 A $(1, 0, 0)$<br>
+                            <br>
+                            $R = 0.5 \times 0 + (1 - 0.5) \times 1 = 0.5$<br>
+                            $G = 0.5 \times 0 + (1 - 0.5) \times 0 = 0$<br>
+                            $B = 0.5 \times 1 + (1 - 0.5) \times 0 = 0.5$<br>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> Output Merger 단계에서 Depth Test와 Blending의 순서, 그리고 정확한 Alpha Blending 수식($C_{src}\alpha + C_{dst}(1-\alpha)$)을 적용할 수 있는지 테스트합니다. 불투명 물체와 반투명 물체의 렌더링 순서(Sorting)가 왜 중요한지 보여주는 예시입니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 3 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-semibold mb-2">주제 3: 노멀 매핑 (탄젠트 공간)</span>
+                <h2 class="text-xl font-bold mb-4">문제 3</h2>
+                <p class="mb-4">
+                    탄젠트 공간 노멀 매핑(Tangent-space Normal Mapping)에서는 TBN 행렬을 구성합니다.
+                    조명 벡터 $L$이 월드 공간(World Space)에 정의되어 있고, 텍스처에서 샘플링한 법선 $N$이 탄젠트 공간(Tangent Space)에 있다면, 프래그먼트 쉐이더에서 이들을 올바르게 비교하기 위해 필요한 행렬 곱셈식을 작성하세요.
+                </p>
+                <p class="mb-4">
+                    이 변환을 프래그먼트 쉐이더 대신 버텍스 쉐이더에서 수행하는 것을 선호하는 이유는 무엇입니까?
+                </p>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans3')" class="w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans3" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-3 text-gray-800">
+                            조명 벡터를 탄젠트 공간으로 변환해야 합니다(혹은 노멀을 월드 공간으로 변환할 수도 있지만, 조명을 탄젠트 공간으로 옮기는 것이 표준입니다). TBN 행렬은 탄젠트 공간에서 월드 공간으로 변환합니다($TBN: TS \rightarrow WS$). 따라서 월드 공간의 $L$을 탄젠트 공간으로 변환하려면 TBN의 역행렬이 필요합니다. TBN은 직교 행렬(Orthogonal Matrix)이므로, $TBN^{-1} = TBN^T$입니다.
+                        </p>
+                        <div class="bg-white p-3 rounded border border-green-200 text-gray-800 font-serif text-center mb-3">
+                            $$L_{tangent} = TBN^T \times L_{world}$$
+                            $$L_{tangent} = \begin{bmatrix} T_x & T_y & T_z \\ B_x & B_y & B_z \\ N_x & N_y & N_z \end{bmatrix} \times L_{world}$$
+                        </div>
+                        <p class="text-gray-800">
+                            <strong>효율성 (최적화):</strong> 조명 벡터 계산은 버텍스 단위(Vertex Shader)로 수행되는 반면, 노멀 샘플링은 픽셀 단위(Fragment Shader)로 수행됩니다. 버텍스 쉐이더에서 행렬 곱셈을 수행하는 것이 프래그먼트 쉐이더에서 모든 픽셀마다 수행하는 것보다 연산 횟수가 훨씬 적습니다.
+                        </p>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> 좌표계 변환(Coordinate Space Transformation)의 핵심입니다. Space가 일치하지 않는 두 벡터를 내적(Dot Product)하는 것은 그래픽스에서 가장 흔하고 치명적인 실수입니다. 또한 행렬의 역행렬($M^{-1}$)과 전치행렬($M^T$) 관계를 이해해야 합니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 4 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-gray-200 text-gray-800 rounded-full text-sm font-semibold mb-2">주제 4: 그림자 매핑 (Shadow Mapping)</span>
+                <h2 class="text-xl font-bold mb-4">문제 4</h2>
+                <p class="mb-4">그림자 매핑(Shadow Mapping)의 두 번째 패스에서, 표면에 "Shadow Acne"(셀프 섀도잉 아티팩트)가 자주 나타납니다.</p>
+                <ol class="list-decimal list-inside space-y-1 ml-2 text-gray-700">
+                    <li>섀도우 맵의 해상도(Resolution)와 관련하여 섀도우 아크네의 기하학적 원인을 설명하세요.</li>
+                    <li>코드 <code>if ( z_current > z_map + bias )</code>에서, 바이어스(bias) 항이 이 문제를 해결하기 위해 수학적으로 어떤 역할을 하는지 설명하고, 바이어스가 너무 클 경우 발생하는 부작용을 서술하세요.</li>
+                </ol>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans4')" class="w-full sm:w-auto px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans4" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-2 text-gray-800">
+                            <strong>원인:</strong> Shadow Map은 유한한 해상도(Discrete Resolution)를 가지기 때문에, 텍스처의 한 픽셀(Texel)이 Scene의 넓은 영역을 커버하게 됩니다. 빛의 관점에서 표면이 기울어져 있을 때, 해당 Texel에 저장된 깊이 값은 픽셀 중심의 깊이 하나뿐입니다. 이로 인해 표면의 일부 지점은 실제로는 빛을 받고 있음에도 불구하고, 자신의 깊이($z_{current}$)가 저장된 깊이($z_{map}$)보다 아주 미세하게 커지는 경우가 발생하여 스스로 그림자를 만들게 됩니다.
+                        </p>
+                        <p class="mb-2 text-gray-800">
+                            <strong>Bias:</strong> bias는 깊이 비교 시 $z_{map}$을 약간 뒤로 밀어주거나(혹은 $z_{current}$를 당겨주어) 오차 범위를 무시하게 만듭니다. 이를 통해 잘못된 Self-shadowing을 제거합니다.
+                        </p>
+                        <p class="text-gray-800">
+                            <strong>부작용:</strong> Bias가 너무 크면, 물체가 바닥에 닿아있음에도 불구하고 그림자가 물체와 분리되어 붕 떠 보이는 <strong>피터 팬(Peter Panning)</strong> 현상이 발생합니다.
+                        </p>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> Shadow Mapping 알고리즘의 한계점과 이를 극복하기 위한 공학적 해결책(Bias)을 이해하고 있는지 묻습니다. 그래픽스 이론이 실제 구현에서 어떻게 깨지고 보정되는지 아는 것이 중요합니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 5 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold mb-2">주제 5: 물리기반 렌더링 (PBR)</span>
+                <h2 class="text-xl font-bold mb-4">문제 5</h2>
+                <p class="mb-4">
+                    PBR에서 사용되는 쿡-토런스(Cook-Torrance) BRDF에서는 디퓨즈 성분($k_d$)과 스펙큘러 성분($k_s$) 간의 관계를 통해 에너지 보존 법칙을 적용합니다.
+                </p>
+                <p class="mb-4">
+                    금속 표면(예: 순금)의 경우, $k_d$(디퓨즈 항)의 값은 무엇이어야 하며, 그 이유는 무엇입니까? 빛과 금속의 물리적 상호작용에 근거하여 설명하세요.
+                </p>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans5')" class="w-full sm:w-auto px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans5" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-2 text-gray-800"><strong>값:</strong> $k_d \approx 0$ (검정색).</p>
+                        <p class="text-gray-800">
+                            <strong>이유:</strong> 금속(Conductors)은 표면 내부로 빛이 굴절(Refraction)되어 들어가는 현상이 거의 발생하지 않으며, 들어간 빛도 즉시 흡수됩니다. 즉, 표면 하 산란(Subsurface Scattering)에 의해 다시 밖으로 나오는 Diffuse Reflection이 없습니다. 들어온 빛의 대부분은 표면에서 Specular(반사) 형태로만 반사됩니다 ($k_s \approx 1$). 에너지 보존 법칙($k_d + k_s = 1$)에 따라 $k_s$가 매우 높으므로 $k_d$는 0이 되어야 합니다.
+                        </p>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> PBR과 기존 Phong 모델의 결정적 차이인 Microfacet Theory와 Energy Conservation을 이해하는지 묻습니다. "Metalness" 파라미터가 셰이더 내부에서 수학적으로 어떤 항을 제거($k_d \rightarrow 0$)하는지 알아야 합니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 6 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-100 bg-slate-50">
+                <span class="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold mb-2">주제 6: 레이 트레이싱 (Ray Tracing)</span>
+                <h2 class="text-xl font-bold mb-4">문제 6</h2>
+                <p class="mb-4">
+                    레이 트레이싱을 사용하여 구를 렌더링하기 위해, 광선(Ray) $P(t) = O + tD$와 구 $(P - C) \cdot (P - C) = R^2$ 사이의 교차점을 구합니다.
+                    광선 방정식을 구의 방정식에 대입하면 2차 방정식 $At^2 + Bt + C = 0$을 얻습니다.
+                </p>
+                <p class="mb-4">
+                    판별식(Discriminant) $D < 0$일 때, 이는 기하학적으로 무엇을 의미합니까? $D > 0$이면 두 개의 해 $t_1$과 $t_2$를 얻습니다. 렌더링에는 어떤 $t$ 값을 사용해야 하며, $t$에 대한 어떤 수학적 조건 하에서 선택해야 합니까?
+                </p>
+            </div>
+            
+            <div class="p-6 bg-white">
+                <button onclick="toggleAnswer('ans6')" class="w-full sm:w-auto px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded transition duration-200">
+                    정답 확인
+                </button>
+                
+                <div id="ans6" class="hidden mt-6 fade-in">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <h3 class="font-bold text-green-800 mb-2">정답:</h3>
+                        <p class="mb-2 text-gray-800">
+                            <strong>$D < 0$:</strong> 광선이 구와 교차하지 않음(빗나감)을 의미합니다. 실근이 존재하지 않습니다.
+                        </p>
+                        <p class="mb-2 text-gray-800"><strong>선택:</strong> 양수 중 가장 작은 $t$를 선택해야 합니다.</p>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-700">
+                            <li>$t_1, t_2$를 계산합니다.</li>
+                            <li>$t < 0$인 값은 버립니다 (광선 원점/카메라 뒤에 있는 교차점이기 때문입니다).</li>
+                            <li>남은 $t$ 값 중에서 가장 작은 값을 선택합니다 (카메라에 가장 가까운 교차점).</li>
+                            <li>모두 음수라면 구가 카메라 뒤에 있으므로 교차점으로 간주하지 않습니다.</li>
+                        </ol>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-600 italic">
+                        <strong>핵심 포인트:</strong> Ray Tracing의 가장 기초가 되는 Intersection Test 수학입니다. 단순히 공식을 외우는 것이 아니라, $t$가 "거리"이자 "방향"을 의미한다는 것을 이해하고, $t < 0$인 경우를 예외 처리(Culling)할 수 있는지 확인하는 문제입니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            const answerDiv = document.getElementById(id);
+            const button = answerDiv.previousElementSibling;
+            
+            if (answerDiv.classList.contains('hidden')) {
+                answerDiv.classList.remove('hidden');
+                button.textContent = '정답 숨기기';
+                button.classList.remove('bg-blue-600', 'bg-purple-600', 'bg-indigo-600', 'bg-gray-600', 'bg-yellow-600', 'bg-red-600');
+                button.classList.add('bg-slate-600');
+            } else {
+                answerDiv.classList.add('hidden');
+                button.textContent = '정답 확인';
+                // Reset button color logic based on parent topic color is tricky without inline checks, 
+                // so we revert to a safe generic state or reload could be simpler. 
+                // For simplicity in this lightweight page, we will revert to gray or just keep it simple.
+                button.classList.remove('bg-slate-600');
+                
+                // Re-apply original color class based on ID (Hardcoded for simplicity in this single file script)
+                if(id === 'ans1') button.classList.add('bg-blue-600');
+                if(id === 'ans2') button.classList.add('bg-purple-600');
+                if(id === 'ans3') button.classList.add('bg-indigo-600');
+                if(id === 'ans4') button.classList.add('bg-gray-600');
+                if(id === 'ans5') button.classList.add('bg-yellow-600');
+                if(id === 'ans6') button.classList.add('bg-red-600');
+            }
+        }
+    </script>
+</body>
+</html>
