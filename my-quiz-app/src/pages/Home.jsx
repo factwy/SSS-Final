@@ -129,6 +129,12 @@ export default function Home() {
           color="bg-orange-600"
         />
 
+        <QuizCard 
+          title="소시보 기말 대비"
+          icon={Cpu}
+          path="/test/3"
+          color="bg-orange-600"
+        />
       </div>
     </div>
   );
